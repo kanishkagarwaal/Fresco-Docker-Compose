@@ -1,0 +1,59 @@
+DB and API docker commands
+
+
+DB 
+docker build --no-cache -t cass_db .
+docker run -d -e DS_LICENSE=accept cass_db
+
+docker container ls
+docker exec -it e90eaac6c34a /bin/sh
+
+cd /tmp/cass_DB/Cassandra_Fresco/scripts/
+
+sh run_db_scripts.sh
+
+
+API
+docker run -v /Fresco_API:/Fresco_api -p 8080:8080 c561e640eaf9
+
+
+
+
+docker run -d -e DS_LICENSE=accept 88a0587d4a68
+
+docker exec -it e90eaac6c34a /bin/sh
+
+
+
+#!bin/sh
+set -e
+
+/entrypoint.sh dse cassandra
+
+sleep 130s
+
+cqlsh -e "
+CREATE KEYSPACE fresco_seg  WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 1 };
+create table fresco_seg.customer_seg (party_id text, fresco13_mseg text,fresco13_seg text,fresco13_sseg text,match_flag list<text> ,PRIMARY KEY(party_id));
+COPY fresco_seg.customer_seg (party_id,fresco13_mseg,fresco13_seg,fresco13_sseg,match_flag) FROM '/tmp/cass_DB/Cassandra_Fresco/data/DatasetGenerated.csv' WITH DELIMITER=',' AND HEADER = TRUE 
+"
+
+
+
+Remove all docker containers
+
+docker stop $(docker ps -a -q)
+
+# Delete all containers
+docker rm $(docker ps -a -q)
+# Delete all images
+docker rmi $(docker images -q)
+
+docker system prune
+docker volume prune
+
+version: '2'
+networks:
+  default:
+    external:
+      name: bridge
