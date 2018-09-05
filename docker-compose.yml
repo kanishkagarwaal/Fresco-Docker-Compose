@@ -16,4 +16,7 @@ services:
     build: db/.
     ports:
       - "9042:9042"
+    expose:
+      - "9042"
+    
    
